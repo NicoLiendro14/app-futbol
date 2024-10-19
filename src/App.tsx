@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, User } from 'lucide-react';
+import { Menu, UserPlus } from 'lucide-react';
 import ProfileStats from './components/ProfileStats';
 import TournamentCard from './components/TournamentCard';
 import GroupStage from './components/GroupStage';
@@ -78,7 +78,7 @@ function App() {
     <div className="min-h-screen bg-navy-900 text-white font-sans">
       <header className="p-4 flex justify-between items-center">
         <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
-        <User
+        <UserPlus
           className="w-6 h-6 cursor-pointer"
           onClick={() => setIsInvitePopupOpen(true)}
         />
