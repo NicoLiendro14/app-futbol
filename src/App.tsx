@@ -87,11 +87,11 @@ function App() {
       <main className="px-4 py-6">
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
-            alt="Perfil de Nicolas Liendro"
+            src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+            alt="Perfil de Nicolas Merentiel"
             className="w-24 h-24 rounded-full mb-4"
           />
-          <h1 className="text-2xl font-bold mb-4">Nicolas Liendro</h1>
+          <h1 className="text-2xl font-bold mb-4">Nicolas Merentiel</h1>
           <ProfileStats pg={20} cg={1} gp={36} />
         </div>
 
