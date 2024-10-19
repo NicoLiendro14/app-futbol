@@ -1,0 +1,19 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  @apply bg-navy-900 text-white;
+}
+
+.bg-navy-900 {
+  background-color: #0a192f;
+}
+
+.bg-navy-800 {
+  background-color: #112240;
+}
+
+.bg-navy-700 {
+  background-color: #1e3a8a;
+}

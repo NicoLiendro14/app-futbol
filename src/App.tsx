@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { Menu, User } from 'lucide-react';
+import ProfileStats from './components/ProfileStats';
+import TournamentCard from './components/TournamentCard';
+import GroupStage from './components/GroupStage';
+import SideMenu from './components/SideMenu';
+import InviteFriendPopup from './components/InviteFriendPopup';
+import MatchHistory from './components/MatchHistory';
+import Ranking from './components/Ranking';
+import EliminationStage from './components/EliminationStage'; // Importamos la nueva pantalla
+
+function App() {
+  const [currentView, setCurrentView] = useState('main');
+  const [selectedTournament, setSelectedTournament] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú lateral
+  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false); // Estado para el popup de invitar amigos
+
+  const handleTournamentClick = (title: string) => {
+    setSelectedTournament(title);
+    setCurrentView('groupStage');
+  };
+
+  const handleBackClick = () => {
+    setCurrentView('main');
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú
+  };
+
+  const handleInvite = (email: string) => {
+    // Lógica para simular la búsqueda del amigo por email
+    const validEmails = ['amigo@example.com', 'amiga@example.com']; // Lista de correos válidos
+    return validEmails.includes(email); // Si el email está en la lista, retorna true
+  };
+
+  const handleMenuClick = (section: string) => {
+    setIsMenuOpen(false); // Cerrar el menú
+    setCurrentView(section); // Cambiar la vista a la sección seleccionada
+  };
+
+  const handleAdvanceToEliminationStage = () => {
+    setCurrentView('eliminationStage'); // Cambiar a la fase eliminatoria
+  };
+  const handleChooseNewCup = () => {
+    setCurrentView('main'); // Volver a la vista principal para elegir otra copa
+  };
+
+  if (currentView === 'groupStage') {
+    return (
+      <GroupStage
+        title={selectedTournament}
+        onBackClick={handleBackClick}
+        onAdvanceToEliminationStage={handleAdvanceToEliminationStage} // Pasamos la función para avanzar
+      />
+    );
+  }
+
+  if (currentView === 'eliminationStage') {
+    return (
+      <EliminationStage
+        title={selectedTournament}
+        onBackClick={handleBackClick}
+        onChooseNewCup={handleChooseNewCup} // Pasamos la función para elegir otra copa
+      />
+    );
+  }
+
+  if (currentView === 'history') {
+    return <MatchHistory onBackClick={handleBackClick} />;
+  }
+
+  if (currentView === 'ranking') {
+    return <Ranking onBackClick={handleBackClick} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-navy-900 text-white font-sans">
+      <header className="p-4 flex justify-between items-center">
+        <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
+        <User
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setIsInvitePopupOpen(true)}
+        />
+      </header>
+
+      <main className="px-4 py-6">
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
+            alt="Perfil de Nicolas Liendro"
+            className="w-24 h-24 rounded-full mb-4"
+          />
+          <h1 className="text-2xl font-bold mb-4">Nicolas Liendro</h1>
+          <ProfileStats pg={20} cg={1} gp={36} />
+        </div>
+
+        <div className="space-y-4">
+          <TournamentCard
+            title="Mundial de Futbol"
+            image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            onClick={() => handleTournamentClick('Mundial de Futbol')}
+          />
+          <TournamentCard
+            title="Champions League"
+            image="https://images.unsplash.com/photo-1522778119026-d647f0596c20?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            onClick={() => handleTournamentClick('Champions League')}
+          />
+          <TournamentCard
+            title="Libertadores"
+            image="https://images.unsplash.com/photo-1551958219-acbc608c6377?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            onClick={() => handleTournamentClick('Libertadores')}
+          />
+        </div>
+
+        <button className="w-full bg-purple-600 text-white py-3 rounded-lg mt-6 font-semibold">
+          Fixture
+        </button>
+      </main>
+
+      {/* Renderizamos el menú lateral */}
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={handleMenuClick} // Pasamos la función de navegación
+      />
+
+      {/* Renderizamos el popup de invitar amigos */}
+      {isInvitePopupOpen && (
+        <InviteFriendPopup
+          onClose={() => setIsInvitePopupOpen(false)}
+          onInvite={handleInvite}
+        />
+      )}
+    </div>
+  );
+}
+
+export default App;
