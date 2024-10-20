@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, UserPlus } from 'lucide-react';
-import ProfileStats from './ProfileStats'; // Asegúrate de importar ProfileStats
+import ProfileHeader from './ProfileHeader'; // Importamos el componente ProfileHeader
 import SideMenu from './SideMenu'; // Importamos el SideMenu
 import InviteFriendPopup from './InviteFriendPopup'; // Importamos el popup de invitar amigos
 
@@ -46,15 +46,14 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ onNavigate }) => {
         />
       </header>
 
-      {/* Información del perfil */}
-      <div className="text-center my-4">
-        <p className="text-sm">Perfil de</p>
-        <p className="text-sm">Nicolas Liendro</p>
-      </div>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-4">Nicolas Liendro</h1>
-        <ProfileStats pg={20} cg={1} gp={36} />{' '}
-      </div>
+      {/* Profile Header con estadísticas */}
+      <ProfileHeader 
+        name="Nicolas Liendro"
+        imageUrl="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+        pg={20}
+        cg={1}
+        gp={36}
+      />
 
       {/* Título de la pantalla */}
       <h2 className="text-center text-xl font-bold mb-4">

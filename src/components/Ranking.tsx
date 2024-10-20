@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, UserPlus } from 'lucide-react';
 import SideMenu from './SideMenu'; // Importamos el SideMenu
 import InviteFriendPopup from './InviteFriendPopup'; // Importamos el popup de invitar amigos
+import ProfileHeader from './ProfileHeader'; // Importamos ProfileHeader
 
 interface RankingProps {
   onNavigate: (section: string) => void;
@@ -36,31 +37,20 @@ const Ranking: React.FC<RankingProps> = ({ onNavigate }) => {
         {/* Botón de menú hamburguesa */}
         <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
         {/* Icono de agregar amigo */}
-        <UserPlus className="w-6 h-6 cursor-pointer" onClick={() => setIsInvitePopupOpen(true)} />
+        <UserPlus
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setIsInvitePopupOpen(true)}
+        />
       </header>
 
-      {/* Información del perfil */}
-      <div className="text-center my-4">
-        <p className="text-sm">Perfil de</p>
-        <p className="text-sm">Nicolas Liendro</p>
-      </div>
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-4">Nicolas Liendro</h1>
-        <div className="flex justify-center space-x-8">
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">20</span>
-            <span className="text-sm">PG</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">1</span>
-            <span className="text-sm">CG</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">36</span>
-            <span className="text-sm">GP</span>
-          </div>
-        </div>
-      </div>
+      {/* Profile Header con estadísticas */}
+      <ProfileHeader 
+        name="Nicolas Liendro"
+        imageUrl="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+        pg={20}
+        cg={1}
+        gp={36}
+      />
 
       {/* Título de la pantalla */}
       <h2 className="text-center text-xl font-bold mb-4">Ranking</h2>
