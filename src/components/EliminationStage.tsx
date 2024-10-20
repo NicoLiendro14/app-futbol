@@ -3,17 +3,23 @@ import { Menu, Plus, X, UserPlus } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
 import SideMenu from './SideMenu'; // Importamos SideMenu si no está ya importado
 
+interface TournamentData {
+  name: string;
+  backgroundImage: string;
+  teams: string[];
+  styles?: object;
+}
+
 // Definimos las props que espera recibir este componente
 interface EliminationStageProps {
-  title: string;
+  tournament: TournamentData;
   onBackClick: () => void;
   onChooseNewCup: () => void;
-  onNavigate: (section: string) => void; // Añadimos la función de navegación
+  onNavigate: (section: string) => void;
 }
 
 const EliminationStage: React.FC<EliminationStageProps> = ({
-  title,
-  onBackClick,
+  tournament,
   onChooseNewCup,
   onNavigate, // Desestructuramos la función de navegación
 }) => {
@@ -22,51 +28,80 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
   const [matchResult, setMatchResult] = useState<null | 'win' | 'loss'>(null);
   const [isChampion, setIsChampion] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
+  const [isEliminated, setIsEliminated] = useState(false);
 
-  const phases = {
-    octavos: {
-      round: 'Octavos de Final',
-      player1: 'Nicolas Liendro',
-      player2: 'Uruguay',
-    },
-    cuartos: {
-      round: 'Cuartos de Final',
-      player1: 'Nicolas Liendro',
-      player2: 'Brasil',
-    },
-    semifinal: {
-      round: 'Semifinal',
-      player1: 'Nicolas Liendro',
-      player2: 'Argentina',
-    },
-    final: {
-      round: 'Final',
-      player1: 'Nicolas Liendro',
-      player2: 'Alemania',
-    },
+
+  const tournamentPhases = ['octavos', 'cuartos', 'semifinal', 'final'];
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+
+  const generatePhases = () => {
+    const phasesObj: any = {};
+    let remainingTeams = [...tournament.teams];
+    // Eliminamos al usuario del array de equipos
+    const userTeam = 'Nicolas Liendro';
+    remainingTeams = remainingTeams.filter((team) => team !== userTeam);
+
+    for (let i = 0; i < tournamentPhases.length; i++) {
+      const phaseName = tournamentPhases[i];
+      const opponentIndex = Math.floor(Math.random() * remainingTeams.length);
+      const opponent = remainingTeams.splice(opponentIndex, 1)[0];
+
+      phasesObj[phaseName] = {
+        round: phaseName.charAt(0).toUpperCase() + phaseName.slice(1),
+        player1: userTeam,
+        player2: opponent || 'Desconocido',
+      };
+    }
+    return phasesObj;
   };
+
+  const [dynamicPhases] = useState(generatePhases());
+  const currentPhaseName = tournamentPhases[currentPhaseIndex];
+  const currentMatch = dynamicPhases[currentPhaseName];
+  const [goalsScored, setGoalsScored] = useState(0); // Para manejar los goles hechos
+  const [gamesWon, setGamesWon] = useState(0); // Para manejar los partidos ganados
+
+  const handleInvite = (email: string) => {
+    const validEmails = ['amigo@example.com', 'amiga@example.com'];
+    return validEmails.includes(email);
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  const handleAddMatch = (matchData: MatchData) => {
-    setMatchResult(matchData.result);
+  const handleAddMatch = (matchData: MatchData) => {    
+    //setMatchResult((matchData.result));
+    // Determinamos el resultado del equipo local (usuario) basado en los goles
+    let result: 'win' | 'draw' | 'loss' | null = null;
+    if (matchData.homeGoals > matchData.awayGoals) {
+      result = 'win';
+    } else if (matchData.homeGoals < matchData.awayGoals) {
+      result = 'loss';
+    } else {
+      result = 'draw';
+    }
 
-    if (matchData.result === 'win') {
-      if (currentPhase === 'octavos') {
-        setCurrentPhase('cuartos');
-      } else if (currentPhase === 'cuartos') {
-        setCurrentPhase('semifinal');
-      } else if (currentPhase === 'semifinal') {
-        setCurrentPhase('final');
-      } else if (currentPhase === 'final') {
+    if (result === 'win') {
+      if (currentPhaseIndex < tournamentPhases.length - 1) {
+        setCurrentPhaseIndex(currentPhaseIndex + 1);
+        setMatchResult(null); // Reset the match result for the next phase
+      } else {
         setIsChampion(true);
       }
+    } else {
+      setShowPopup(false);
+      setMatchResult('loss'); // Cambiamos el estado para indicar que se ha perdido
+      setIsEliminated(true); // Activamos el popup de eliminación
+    
+      // Suponiendo que quieres mantener los goles hechos y partidos ganados
+      // Aquí puedes ajustar la lógica para aumentar según el resultado del partido
     }
+    
 
     setShowPopup(false);
   };
-
-  const currentMatch = phases[currentPhase];
+  
 
   // Handle sharing via WhatsApp
   const handleShare = () => {
@@ -78,20 +113,31 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
-      style={{ backgroundImage: "url('/path-to-your-background-image.png')" }}>
-
+    <div
+      className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
+      style={{ backgroundImage: `url(${tournament.backgroundImage})` }}
+    >
       {/* Header section with Hamburger Menu and Add Friend Button */}
       <div className="flex justify-between w-full p-4 absolute top-0">
-      <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
-      <UserPlus className="w-6 h-6 cursor-pointer" />
+        <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
+        <UserPlus
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setIsInvitePopupOpen(true)}
+        />
       </div>
       {/* Side menu */}
       <SideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={onNavigate} // Utilizamos la función de navegación pasada desde App.tsx
+        onNavigate={onNavigate}
       />
+      {/* Invite Friend Popup */}
+      {isInvitePopupOpen && (
+        <InviteFriendPopup
+          onClose={() => setIsInvitePopupOpen(false)}
+          onInvite={handleInvite}
+        />
+      )}
       {/* Profile Info inside bordered box */}
       <header className="flex flex-col items-center mt-20">
         <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent">
@@ -101,7 +147,7 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
             className="w-14 h-14 rounded-full mr-4"
           />
           <div className="flex flex-col items-start">
-            <h1 className="text-lg font-bold">Mundial de Futbol</h1>
+            <h1 className="text-lg font-bold">{tournament.name}</h1>
             <span className="text-sm text-gray-300">Nicolas Liendro</span>
           </div>
         </div>
@@ -154,6 +200,49 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
           onSave={handleAddMatch}
         />
       )}
+{isEliminated && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-navy-800 rounded-lg p-6 w-11/12 max-w-md text-center relative">
+      <button
+        onClick={() => setIsEliminated(false)}
+        className="absolute top-4 right-4"
+      >
+        <X size={24} className="text-white" />
+      </button>
+      <h2 className="text-2xl font-bold mb-4">¡Has perdido!</h2>
+
+      <div className="flex justify-around my-6">
+        <div>
+          <p className="text-sm mb-2">Goles Hechos</p>
+          <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4 mx-auto">
+            <span className="text-xl font-bold">{goalsScored}</span>
+          </div>
+        </div>
+        <div>
+          <p className="text-sm mb-2">Partidos Ganados</p>
+          <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4 mx-auto">
+            <span className="text-xl font-bold">{gamesWon}</span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        className="w-full bg-purple-600 text-white py-2 rounded-lg mt-4"
+        onClick={() => window.location.reload()} // Reinicia el torneo o lo que consideres "reiniciar"
+      >
+        Reiniciar
+      </button>
+      <button
+        className="w-full bg-transparent text-purple-600 py-2 rounded-lg mt-2"
+        onClick={onChooseNewCup}
+      >
+        Elegir otra copa
+      </button>
+    </div>
+  </div>
+)}
+
+
 
       {/* Popup de Campeón del Mundo */}
       {isChampion && (
@@ -165,20 +254,20 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
             >
               <X size={24} className="text-white" />
             </button>
-            <h2 className="text-2xl font-bold mb-4">Campeón del Mundo</h2>
+            <h2 className="text-2xl font-bold mb-4">¡Campeón!</h2>
             <img
               src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
               alt="Perfil de Nicolas Liendro"
               className="w-24 h-24 rounded-full mb-4 mx-auto"
             />
-            <p className="mb-2 text-lg">Felicidades Nicolas Liendro</p>
+            <p className="mb-2 text-lg">Felicidades {currentMatch.player1}</p>
             <p className="text-sm my-4">Goles Hechos</p>
             <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4 mx-auto">
               <span className="text-xl font-bold">20</span>
             </div>
             <button
               className="w-full bg-purple-600 text-white py-2 rounded-lg mt-4"
-              onClick={handleShare} // Share button
+              onClick={handleShare}
             >
               Compartir
             </button>

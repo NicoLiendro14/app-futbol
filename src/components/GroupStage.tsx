@@ -4,9 +4,15 @@ import AddMatchPopup, { MatchData } from './AddMatchPopup';
 import SideMenu from './SideMenu';
 import InviteFriendPopup from './InviteFriendPopup';
 
+interface TournamentData {
+  name: string;
+  backgroundImage: string;
+  teams: string[];
+  styles?: object;
+}
+
 interface GroupStageProps {
-  title: string;
-  onBackClick: () => void;
+  tournament: TournamentData;
   onAdvanceToEliminationStage: () => void;
   onNavigate: (section: string) => void; // Añadimos la función de navegación
 }
@@ -17,19 +23,18 @@ interface TeamData {
 }
 
 const GroupStage: React.FC<GroupStageProps> = ({
-  title,
-  onBackClick,
+  tournament,
   onAdvanceToEliminationStage,
-  onNavigate, // Desestructuramos la función de navegación
+  onNavigate,
 }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [showAdvancePopup, setShowAdvancePopup] = useState(false); // Popup for advancing to next phase
-  const [teams, setTeams] = useState<TeamData[]>([
-    { name: 'Nicolas Liendro', results: [null, null, null] }, // 3 matches
-    { name: 'Uruguay', results: [null, null, null] }, // 3 matches
-    { name: 'Colombia', results: [null, null, null] }, // 3 matches
-    { name: 'Noruega', results: [null, null, null] }, // 3 matches
-  ]);
+  const [teams, setTeams] = useState<TeamData[]>(
+    tournament.teams.map((teamName) => ({
+      name: teamName,
+      results: [null, null, null],
+    }))
+  );
   const [hasAdvanced, setHasAdvanced] = useState<boolean | null>(null); // Track if user has advanced
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,33 +57,46 @@ const GroupStage: React.FC<GroupStageProps> = ({
     }
   }, [teams]);
 
-  const handleAddMatch = (matchData: MatchData) => {
-    setTeams((prevTeams) => {
-      const newTeams = [...prevTeams];
-      const userTeam = newTeams[0];
-      const firstNullIndex = userTeam.results.indexOf(null);
-      if (firstNullIndex !== -1) {
-        userTeam.results[firstNullIndex] = matchData.result;
-      }
+const handleAddMatch = (matchData: MatchData) => {
+  setTeams((prevTeams) => {
+    const newTeams = [...prevTeams];
+    const userTeam = newTeams[0];
 
-      for (let i = 1; i < newTeams.length; i++) {
-        const team = newTeams[i];
-        const randomIndex = team.results.indexOf(null);
-        if (randomIndex !== -1) {
-          const randomResult = Math.random();
-          if (randomResult < 0.33) {
-            team.results[randomIndex] = 'win';
-          } else if (randomResult < 0.66) {
-            team.results[randomIndex] = 'draw';
-          } else {
-            team.results[randomIndex] = 'loss';
-          }
+    // Determinamos el resultado del equipo local (usuario) basado en los goles
+    let result: 'win' | 'draw' | 'loss' | null = null;
+    if (matchData.homeGoals > matchData.awayGoals) {
+      result = 'win';
+    } else if (matchData.homeGoals < matchData.awayGoals) {
+      result = 'loss';
+    } else {
+      result = 'draw';
+    }
+
+    // Encontramos el primer espacio disponible para el resultado en los partidos
+    const firstNullIndex = userTeam.results.indexOf(null);
+    if (firstNullIndex !== -1) {
+      userTeam.results[firstNullIndex] = result; // Asignamos el resultado calculado
+    }
+
+    // Ahora actualizamos los resultados para los otros equipos de manera aleatoria
+    for (let i = 1; i < newTeams.length; i++) {
+      const team = newTeams[i];
+      const randomIndex = team.results.indexOf(null);
+      if (randomIndex !== -1) {
+        const randomResult = Math.random();
+        if (randomResult < 0.33) {
+          team.results[randomIndex] = 'win';
+        } else if (randomResult < 0.66) {
+          team.results[randomIndex] = 'draw';
+        } else {
+          team.results[randomIndex] = 'loss';
         }
       }
+    }
 
-      return newTeams;
-    });
-  };
+    return newTeams;
+  });
+};
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -97,16 +115,17 @@ const GroupStage: React.FC<GroupStageProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
-      style={{ backgroundImage: "url('/path-to-your-background-image.png')" }}>
-
-      {/* Header section with Hamburger Menu and Add Friend Button */}
+    <div
+      className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
+      style={{ backgroundImage: `url(${tournament.backgroundImage})` }}
+    >
+      {/* Header section */}
       <div className="flex justify-between w-full p-4 absolute top-0">
         <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
         <UserPlus className="w-6 h-6 cursor-pointer" onClick={() => setIsInvitePopupOpen(true)} />
       </div>
 
-      {/* Profile Info inside bordered box */}
+      {/* Profile Info */}
       <header className="flex flex-col items-center mt-20">
         <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent">
           <img
@@ -115,7 +134,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
             className="w-14 h-14 rounded-full mr-4"
           />
           <div className="flex flex-col items-start">
-            <h1 className="text-lg font-bold">Mundial de Futbol</h1>
+            <h1 className="text-lg font-bold">{tournament.name}</h1>
             <span className="text-sm text-gray-300">Nicolas Liendro</span>
           </div>
         </div>

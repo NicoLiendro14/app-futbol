@@ -7,17 +7,48 @@ import SideMenu from './components/SideMenu';
 import InviteFriendPopup from './components/InviteFriendPopup';
 import MatchHistory from './components/MatchHistory';
 import Ranking from './components/Ranking';
-import EliminationStage from './components/EliminationStage'; // Importamos la nueva pantalla
+import EliminationStage from './components/EliminationStage';
+
+interface TournamentData {
+  name: string;
+  backgroundImage: string;
+  teams: string[];
+  styles?: object;
+}
 
 function App() {
   const [currentView, setCurrentView] = useState('main');
-  const [selectedTournament, setSelectedTournament] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para el menú lateral
-  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false); // Estado para el popup de invitar amigos
+  const [selectedTournament, setSelectedTournament] = useState<TournamentData | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
+
+  // Definimos los datos de cada torneo
+  const tournaments: { [key: string]: TournamentData } = {
+    'Mundial de Futbol': {
+      name: 'Mundial de Futbol',
+      backgroundImage: 'https://i.pinimg.com/736x/f5/25/a9/f525a90c9ddcec27d1625dff575d6d39.jpg',
+      teams: ['Nicolas Liendro', 'Uruguay', 'Colombia', 'Noruega'],
+    },
+    'Champions League': {
+      name: 'Champions League',
+      backgroundImage: 'https://i.pinimg.com/originals/df/a4/22/dfa4223c946f25021f829b8dc1e70ce5.jpg',
+      teams: ['Real Madrid', 'Barcelona', 'Bayern Munich', 'Liverpool'],
+    },
+    'Libertadores': {
+      name: 'Libertadores',
+      backgroundImage: 'https://i.pinimg.com/originals/1c/53/8f/1c538f2a180f30abf84803a50ed0c39c.jpg',
+      teams: ['River Plate', 'Boca Juniors', 'Flamengo', 'Palmeiras'],
+    },
+  };
 
   const handleTournamentClick = (title: string) => {
-    setSelectedTournament(title);
-    setCurrentView('groupStage');
+    const tournament = tournaments[title];
+    if (tournament) {
+      setSelectedTournament(tournament);
+      setCurrentView('groupStage');
+    } else {
+      console.error('Torneo no encontrado:', title);
+    }
   };
 
   const handleBackClick = () => {
@@ -25,61 +56,50 @@ function App() {
   };
 
   const toggleMenu = () => {
-    console.log("Toggle menu clicked"); // Para depuración
     setIsMenuOpen(!isMenuOpen);
   };
-  // Función para abrir el popup de invitar amigos
+
   const openInvitePopup = () => {
-    console.log("Invite friend clicked"); // Para depuración
     setIsInvitePopupOpen(true);
   };
 
   const handleInvite = (email: string) => {
-    // Lógica para simular la búsqueda del amigo por email
-    const validEmails = ['amigo@example.com', 'amiga@example.com']; // Lista de correos válidos
-    return validEmails.includes(email); // Si el email está en la lista, retorna true
+    const validEmails = ['amigo@example.com', 'amiga@example.com'];
+    return validEmails.includes(email);
   };
 
-  // Función para manejar la navegación desde el menú lateral
   const handleMenuClick = (section: string) => {
-    console.log(`Navigating to section: ${section}`); // Para depuración
-    setIsMenuOpen(false); // Cerrar el menú
-    setCurrentView(section); // Cambiar la vista a la sección seleccionada
+    setIsMenuOpen(false);
+    setCurrentView(section);
   };
-
 
   const handleAdvanceToEliminationStage = () => {
-    setCurrentView('eliminationStage'); // Cambiar a la fase eliminatoria
+    setCurrentView('eliminationStage');
   };
+
   const handleChooseNewCup = () => {
-    setCurrentView('main'); // Volver a la vista principal para elegir otra copa
+    setCurrentView('main');
   };
 
-  let content;
-
-
-  if (currentView === 'groupStage') {
+  if (currentView === 'groupStage' && selectedTournament) {
     return (
       <GroupStage
-        title={selectedTournament}
-        onBackClick={handleBackClick}
+        tournament={selectedTournament}
         onAdvanceToEliminationStage={handleAdvanceToEliminationStage}
-        onNavigate={handleMenuClick} // Pasamos la función de navegación
+        onNavigate={handleMenuClick}
       />
     );
   }
-
-  if (currentView === 'eliminationStage') {
+  if (currentView === 'eliminationStage' && selectedTournament) {
     return (
       <EliminationStage
-        title={selectedTournament}
+        tournament={selectedTournament}
         onBackClick={handleBackClick}
         onChooseNewCup={handleChooseNewCup}
-        onNavigate={handleMenuClick} // Pasamos la función de navegación
+        onNavigate={handleMenuClick}
       />
     );
   }
-
 
   if (currentView === 'history') {
     return (
