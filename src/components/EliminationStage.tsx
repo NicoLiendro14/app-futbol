@@ -1,8 +1,6 @@
-// src/components/EliminationStage.tsx
 import React, { useState } from 'react';
-import { ChevronLeft, Plus, X } from 'lucide-react';
+import { Menu, Plus, X, UserPlus } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
-import ProfileHeader from './ProfileHeader'; // Importa el componente de perfil
 
 interface EliminationStageProps {
   title: string;
@@ -26,18 +24,30 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
       round: 'Octavos de Final',
       player1: 'Nicolas Liendro',
       player2: 'Uruguay',
+      stats1: { goals: 10, wins: 3 }, // Example stats
+      stats2: { goals: 8, wins: 2 },  // Example stats
     },
     cuartos: {
       round: 'Cuartos de Final',
       player1: 'Nicolas Liendro',
       player2: 'Brasil',
+      stats1: { goals: 12, wins: 4 },
+      stats2: { goals: 15, wins: 3 },
     },
     semifinal: {
       round: 'Semifinal',
       player1: 'Nicolas Liendro',
       player2: 'Argentina',
+      stats1: { goals: 16, wins: 5 },
+      stats2: { goals: 18, wins: 4 },
     },
-    final: { round: 'Final', player1: 'Nicolas Liendro', player2: 'Alemania' },
+    final: {
+      round: 'Final',
+      player1: 'Nicolas Liendro',
+      player2: 'Alemania',
+      stats1: { goals: 20, wins: 6 },
+      stats2: { goals: 22, wins: 5 },
+    },
   };
 
   const handleAddMatch = (matchData: MatchData) => {
@@ -62,40 +72,59 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
   const currentMatch = phases[currentPhase];
 
   return (
-    <div className="min-h-screen bg-navy-900 text-white font-sans">
-      <header className="p-4 flex items-center">
-        <ChevronLeft
-          className="w-6 h-6 mr-2 cursor-pointer"
-          onClick={onBackClick}
-        />
-        <h1 className="text-xl font-bold">{title}</h1>
+    <div className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
+      style={{ backgroundImage: "url('/path-to-your-background-image.png')" }}>
+
+      {/* Header section with Hamburger Menu and Add Friend Button */}
+      <div className="flex justify-between w-full p-4 absolute top-0">
+        <Menu className="w-6 h-6 cursor-pointer" />
+        <UserPlus className="w-6 h-6 cursor-pointer" />
+      </div>
+
+      {/* Profile Info inside bordered box */}
+      <header className="flex flex-col items-center mt-20">
+        <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent">
+          <img
+            src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+            alt="Perfil"
+            className="w-14 h-14 rounded-full mr-4"
+          />
+          <div className="flex flex-col items-start">
+            <h1 className="text-lg font-bold">Mundial de Futbol</h1>
+            <span className="text-sm text-gray-300">Nicolas Liendro</span>
+          </div>
+        </div>
       </header>
 
-      {/* Agregamos el componente de perfil */}
-      <ProfileHeader
-        name="Nicolas Merentiel"
-        imageUrl="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
-        pg={20}
-        cg={1}
-        gp={36}
-      />
+      {/* Elimination Phase Title */}
+      <div className="mt-8 mb-10">
+        <h2 className="text-xl font-bold px-6 py-2 border border-cyan-400 rounded-lg bg-transparent text-center">
+          {currentMatch.round}
+        </h2>
+      </div>
 
-      <main className="px-4 py-6">
-        <div className="text-center">
-          <h2 className="text-lg font-bold mb-2">{currentMatch.round}</h2>
-          <div className="flex justify-center items-center space-x-4">
-            <div className="bg-navy-700 p-4 rounded-lg w-40 text-center">
-              {currentMatch.player1}
+      {/* Matchup: Nicolas Liendro vs Opponent with Player Stats */}
+      <main className="flex flex-col items-center justify-center w-full flex-grow">
+        <div className="flex flex-col items-center space-y-6"> {/* Increased space between elements */}
+          {/* Player 1 */}
+          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg"> {/* Increased size */}
+            {currentMatch.player1}
+            <div className="text-sm mt-2">
             </div>
-            <span className="text-white">VS</span>
-            <div className="bg-navy-700 p-4 rounded-lg w-40 text-center">
-              {currentMatch.player2}
+          </div>
+
+          <span className="text-white text-2xl font-bold">VS</span> {/* Made larger */}
+
+          {/* Player 2 */}
+          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg"> {/* Increased size */}
+            {currentMatch.player2}
+            <div className="text-sm mt-2">
             </div>
           </div>
         </div>
 
         {matchResult === 'loss' && (
-          <p className="text-center text-red-500 mt-4">
+          <p className="text-center text-red-500 mt-6">
             ¡Has sido eliminado del torneo!
           </p>
         )}
@@ -131,12 +160,12 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
             </button>
             <h2 className="text-2xl font-bold mb-4">Campeon del Mundo</h2>
             <img
-              src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
+              src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
               alt="Perfil de Nicolas Liendro"
               className="w-24 h-24 rounded-full mb-4 mx-auto"
             />
             <p className="mb-2 text-lg">Felicidades Nicolas Liendro</p>
-            <p className="text-sm">Goles Hechos</p>
+            <p className="text-sm my-4">Goles Hechos</p>
             <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4 mx-auto">
               <span className="text-xl font-bold">20</span>
             </div>
