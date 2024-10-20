@@ -8,7 +8,8 @@ interface AddMatchPopupProps {
 
 export interface MatchData {
   date: string;
-  result: 'win' | 'draw' | 'loss';
+  homeGoals: number;
+  awayGoals: number;
   goalsScored: number;
   matchType: string;
   performance: string;
@@ -17,13 +18,14 @@ export interface MatchData {
 const AddMatchPopup: React.FC<AddMatchPopupProps> = ({ onClose, onSave }) => {
   const [matchData, setMatchData] = useState<MatchData>({
     date: '',
-    result: 'win',
+    homeGoals: 0,
+    awayGoals: 0,
     goalsScored: 0,
-    matchType: '',
-    performance: '',
+    matchType: 'F5',  // Preseleccionamos F5 como el tipo por defecto
+    performance: 'regular',  // Preseleccionamos rendimiento como "regular"
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setMatchData(prev => ({ ...prev, [name]: value }));
   };
@@ -32,6 +34,24 @@ const AddMatchPopup: React.FC<AddMatchPopupProps> = ({ onClose, onSave }) => {
     e.preventDefault();
     onSave(matchData);
     onClose();
+  };
+
+  // Función para agregar el color al rendimiento
+  const getPerformanceColor = (performance: string) => {
+    switch (performance) {
+      case 'pésimo':
+        return 'bg-red-500';
+      case 'malo':
+        return 'bg-orange-500';
+      case 'regular':
+        return 'bg-yellow-500';
+      case 'bueno':
+        return 'bg-green-500';
+      case 'sobresaliente':
+        return 'bg-blue-500';
+      default:
+        return '';
+    }
   };
 
   return (
@@ -45,6 +65,7 @@ const AddMatchPopup: React.FC<AddMatchPopupProps> = ({ onClose, onSave }) => {
         </div>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
+            {/* Fecha */}
             <div>
               <label className="block mb-1">Fecha</label>
               <input
@@ -56,20 +77,34 @@ const AddMatchPopup: React.FC<AddMatchPopupProps> = ({ onClose, onSave }) => {
                 required
               />
             </div>
+
+            {/* Resultado */}
             <div>
               <label className="block mb-1">Resultado</label>
-              <select
-                name="result"
-                value={matchData.result}
-                onChange={handleChange}
-                className="w-full bg-navy-700 rounded px-3 py-2"
-                required
-              >
-                <option value="win">Ganado</option>
-                <option value="draw">Empatado</option>
-                <option value="loss">Perdido</option>
-              </select>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="number"
+                  name="homeGoals"
+                  value={matchData.homeGoals}
+                  onChange={handleChange}
+                  className="w-1/3 bg-navy-700 rounded px-3 py-2"
+                  required
+                  min="0"
+                />
+                <span className="text-white">a</span>
+                <input
+                  type="number"
+                  name="awayGoals"
+                  value={matchData.awayGoals}
+                  onChange={handleChange}
+                  className="w-1/3 bg-navy-700 rounded px-3 py-2"
+                  required
+                  min="0"
+                />
+              </div>
             </div>
+
+            {/* Goles propios */}
             <div>
               <label className="block mb-1">Goles propios</label>
               <input
@@ -82,27 +117,38 @@ const AddMatchPopup: React.FC<AddMatchPopupProps> = ({ onClose, onSave }) => {
                 min="0"
               />
             </div>
+
+            {/* Tipo de partido (F5, F7, etc) */}
             <div>
               <label className="block mb-1">Tipo</label>
-              <input
-                type="text"
+              <select
                 name="matchType"
                 value={matchData.matchType}
                 onChange={handleChange}
                 className="w-full bg-navy-700 rounded px-3 py-2"
-                required
-              />
+              >
+                <option value="F5">F5</option>
+                <option value="F7">F7</option>
+                <option value="F8">F8</option>
+                <option value="F11">F11</option>
+              </select>
             </div>
+
+            {/* Rendimiento */}
             <div>
               <label className="block mb-1">Rendimiento</label>
-              <input
-                type="text"
+              <select
                 name="performance"
                 value={matchData.performance}
                 onChange={handleChange}
-                className="w-full bg-navy-700 rounded px-3 py-2"
-                required
-              />
+                className={`w-full bg-navy-700 rounded px-3 py-2 ${getPerformanceColor(matchData.performance)}`}
+              >
+                <option value="pésimo">Pésimo</option>
+                <option value="malo">Malo</option>
+                <option value="regular">Regular</option>
+                <option value="bueno">Bueno</option>
+                <option value="sobresaliente">Sobresaliente</option>
+              </select>
             </div>
           </div>
           <div className="flex justify-end space-x-4 mt-6">
