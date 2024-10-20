@@ -92,8 +92,13 @@ function App() {
   }
 
   if (currentView === 'ranking') {
-    return <Ranking onBackClick={handleBackClick} />;
+    return (
+      <Ranking
+        onNavigate={handleMenuClick}
+      />
+    );
   }
+  
 
   return (
     <div className="min-h-screen bg-navy-900 text-white font-sans">
