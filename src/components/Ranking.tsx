@@ -9,11 +9,18 @@ interface RankingProps {
 }
 
 const Ranking: React.FC<RankingProps> = ({ onNavigate }) => {
-  // Simulación de datos de ranking
+  // Simulación de datos de ranking con más jugadores
   const rankingData = [
     { position: 1, name: 'Nicolas Liendro', pg: 20, gp: 36, cg: 1 },
     { position: 2, name: 'Juan Perez', pg: 18, gp: 34, cg: 2 },
     { position: 3, name: 'Carlos Garcia', pg: 17, gp: 32, cg: 3 },
+    { position: 4, name: 'Mario Rossi', pg: 16, gp: 30, cg: 4 },
+    { position: 5, name: 'Laura Lopez', pg: 15, gp: 28, cg: 5 },
+    { position: 6, name: 'Ana Martins', pg: 14, gp: 26, cg: 6 },
+    { position: 7, name: 'Pedro Suarez', pg: 13, gp: 24, cg: 7 },
+    { position: 8, name: 'Carmen Diaz', pg: 12, gp: 22, cg: 8 },
+    { position: 9, name: 'Luis Hernandez', pg: 11, gp: 20, cg: 9 },
+    { position: 10, name: 'Sofia Blanco', pg: 10, gp: 18, cg: 10 }
   ];
 
   // Estado para el menú lateral y el popup de invitar amigos
@@ -28,6 +35,14 @@ const Ranking: React.FC<RankingProps> = ({ onNavigate }) => {
   const handleInvite = (email: string) => {
     const validEmails = ['amigo@example.com', 'amiga@example.com'];
     return validEmails.includes(email);
+  };
+
+  // Función para determinar el color del borde según la posición
+  const getBorderColor = (position: number) => {
+    if (position === 1) return 'border-yellow-500'; // Dorado para el primer puesto
+    if (position === 2) return 'border-gray-400'; // Plateado para el segundo puesto
+    if (position === 3) return 'border-orange-600'; // Cobre para el tercer puesto
+    return 'border-blue-400'; // Otro color para los demás
   };
 
   return (
@@ -55,19 +70,19 @@ const Ranking: React.FC<RankingProps> = ({ onNavigate }) => {
       {/* Título de la pantalla */}
       <h2 className="text-center text-xl font-bold mb-4">Ranking</h2>
 
-      {/* Tabla de ranking */}
-      <main className="px-4 py-6">
+      {/* Tabla de ranking con scroll */}
+      <main className="px-4 py-6 max-h-80 overflow-y-auto">
         <div className="space-y-4">
           {rankingData.map((player, index) => (
             <div
               key={index}
-              className="flex justify-between items-center border border-cyan-400 rounded-lg p-4"
+              className={`flex justify-between items-center border rounded-lg p-4 ${getBorderColor(player.position)}`}
             >
-              <span>{player.position}</span>
-              <span>{player.name}</span>
-              <span>{player.pg}</span>
-              <span>{player.gp}</span>
-              <span>{player.cg}</span>
+              <span className="w-1/5 text-center">{player.position}</span>
+              <span className="w-2/5 text-left">{player.name}</span>
+              <span className="w-1/5 text-center">{player.pg}</span>
+              <span className="w-1/5 text-center">{player.gp}</span>
+              <span className="w-1/5 text-center">{player.cg}</span>
             </div>
           ))}
         </div>
