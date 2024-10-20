@@ -25,7 +25,13 @@ function App() {
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú
+    console.log("Toggle menu clicked"); // Para depuración
+    setIsMenuOpen(!isMenuOpen);
+  };
+  // Función para abrir el popup de invitar amigos
+  const openInvitePopup = () => {
+    console.log("Invite friend clicked"); // Para depuración
+    setIsInvitePopupOpen(true);
   };
 
   const handleInvite = (email: string) => {
@@ -34,10 +40,13 @@ function App() {
     return validEmails.includes(email); // Si el email está en la lista, retorna true
   };
 
+  // Función para manejar la navegación desde el menú lateral
   const handleMenuClick = (section: string) => {
+    console.log(`Navigating to section: ${section}`); // Para depuración
     setIsMenuOpen(false); // Cerrar el menú
     setCurrentView(section); // Cambiar la vista a la sección seleccionada
   };
+
 
   const handleAdvanceToEliminationStage = () => {
     setCurrentView('eliminationStage'); // Cambiar a la fase eliminatoria
@@ -45,6 +54,9 @@ function App() {
   const handleChooseNewCup = () => {
     setCurrentView('main'); // Volver a la vista principal para elegir otra copa
   };
+
+  let content;
+
 
   if (currentView === 'groupStage') {
     return (
@@ -67,10 +79,16 @@ function App() {
       />
     );
   }
-  
+
 
   if (currentView === 'history') {
-    return <MatchHistory onBackClick={handleBackClick} />;
+    return (
+      <MatchHistory
+        onMenuClick={toggleMenu}
+        onInviteFriend={() => setIsInvitePopupOpen(true)}
+        onNavigate={handleMenuClick}
+      />
+    );
   }
 
   if (currentView === 'ranking') {

@@ -1,13 +1,16 @@
-// src/components/MatchHistory.tsx
-import React from 'react';
-import { ChevronLeft, Menu, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { Menu, UserPlus } from 'lucide-react';
 import ProfileStats from './ProfileStats'; // Asegúrate de importar ProfileStats
+import SideMenu from './SideMenu'; // Importamos el SideMenu
+import InviteFriendPopup from './InviteFriendPopup'; // Importamos el popup de invitar amigos
 
 interface MatchHistoryProps {
-  onBackClick: () => void;
+  onMenuClick: () => void;
+  onInviteFriend: () => void;
+  onNavigate: (section: string) => void;
 }
 
-const MatchHistory: React.FC<MatchHistoryProps> = ({ onBackClick }) => {
+const MatchHistory: React.FC<MatchHistoryProps> = ({ onNavigate }) => {
   // Simulación de datos de historial de partidos
   const matchHistory = [
     { date: '01/10/2023', result: '2-0', type: 'F5' },
@@ -16,13 +19,31 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ onBackClick }) => {
     { date: '20/07/2023', result: '0-0', type: 'F5' },
   ];
 
+  // Estado para el menú lateral y el popup de invitar amigos
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
+
+  // Funciones para abrir/cerrar el menú y el popup
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleInvite = (email: string) => {
+    const validEmails = ['amigo@example.com', 'amiga@example.com'];
+    return validEmails.includes(email);
+  };
+
   return (
     <div className="min-h-screen bg-navy-900 text-white font-sans">
       {/* Header con iconos */}
       <header className="p-4 flex justify-between items-center">
-        <ChevronLeft className="w-6 h-6 cursor-pointer" onClick={onBackClick} />
-        <Menu className="w-6 h-6 cursor-pointer" />
-        <User className="w-6 h-6 cursor-pointer" />
+        {/* Botón de menú hamburguesa */}
+        <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
+        {/* Icono de agregar amigo */}
+        <UserPlus
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setIsInvitePopupOpen(true)}
+        />
       </header>
 
       {/* Información del perfil */}
@@ -33,7 +54,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ onBackClick }) => {
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold mb-4">Nicolas Liendro</h1>
         <ProfileStats pg={20} cg={1} gp={36} />{' '}
-        {/* Usa el componente de estadísticas del perfil */}
       </div>
 
       {/* Título de la pantalla */}
@@ -59,6 +79,21 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ onBackClick }) => {
           </div>
         )}
       </main>
+
+      {/* Side menu */}
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={onNavigate} // Utilizamos la función de navegación pasada desde App.tsx
+      />
+
+      {/* Invite Friend Popup */}
+      {isInvitePopupOpen && (
+        <InviteFriendPopup
+          onClose={() => setIsInvitePopupOpen(false)}
+          onInvite={handleInvite}
+        />
+      )}
     </div>
   );
 };
