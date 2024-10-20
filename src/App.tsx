@@ -51,7 +51,8 @@ function App() {
       <GroupStage
         title={selectedTournament}
         onBackClick={handleBackClick}
-        onAdvanceToEliminationStage={handleAdvanceToEliminationStage} // Pasamos la función para avanzar
+        onAdvanceToEliminationStage={handleAdvanceToEliminationStage}
+        onNavigate={handleMenuClick} // Pasamos la función de navegación
       />
     );
   }
@@ -61,10 +62,12 @@ function App() {
       <EliminationStage
         title={selectedTournament}
         onBackClick={handleBackClick}
-        onChooseNewCup={handleChooseNewCup} // Pasamos la función para elegir otra copa
+        onChooseNewCup={handleChooseNewCup}
+        onNavigate={handleMenuClick} // Pasamos la función de navegación
       />
     );
   }
+  
 
   if (currentView === 'history') {
     return <MatchHistory onBackClick={handleBackClick} />;

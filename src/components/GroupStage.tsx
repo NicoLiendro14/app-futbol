@@ -8,6 +8,7 @@ interface GroupStageProps {
   title: string;
   onBackClick: () => void;
   onAdvanceToEliminationStage: () => void;
+  onNavigate: (section: string) => void; // Añadimos la función de navegación
 }
 
 interface TeamData {
@@ -19,6 +20,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
   title,
   onBackClick,
   onAdvanceToEliminationStage,
+  onNavigate, // Desestructuramos la función de navegación
 }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [showAdvancePopup, setShowAdvancePopup] = useState(false); // Popup for advancing to next phase
@@ -174,7 +176,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
       <SideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={(section: string) => console.log(section)}
+        onNavigate={onNavigate} // Utilizamos la función de navegación pasada desde App.tsx
       />
 
       {/* Invite Friend Popup */}

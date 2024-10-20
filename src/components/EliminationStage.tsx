@@ -1,59 +1,56 @@
 import React, { useState } from 'react';
 import { Menu, Plus, X, UserPlus } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
+import SideMenu from './SideMenu'; // Importamos SideMenu si no está ya importado
 
+// Definimos las props que espera recibir este componente
 interface EliminationStageProps {
   title: string;
   onBackClick: () => void;
   onChooseNewCup: () => void;
+  onNavigate: (section: string) => void; // Añadimos la función de navegación
 }
 
 const EliminationStage: React.FC<EliminationStageProps> = ({
   title,
   onBackClick,
   onChooseNewCup,
+  onNavigate, // Desestructuramos la función de navegación
 }) => {
-  const [currentPhase, setCurrentPhase] = useState('octavos'); // Estado para manejar la fase actual
-  const [showPopup, setShowPopup] = useState(false); // Estado para mostrar el popup de agregar partido
-  const [matchResult, setMatchResult] = useState<null | 'win' | 'loss'>(null); // Estado para el resultado del partido
-  const [isChampion, setIsChampion] = useState(false); // Estado para mostrar el popup de campeón
+  const [currentPhase, setCurrentPhase] = useState('octavos');
+  const [showPopup, setShowPopup] = useState(false);
+  const [matchResult, setMatchResult] = useState<null | 'win' | 'loss'>(null);
+  const [isChampion, setIsChampion] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Datos de las diferentes fases eliminatorias
   const phases = {
     octavos: {
       round: 'Octavos de Final',
       player1: 'Nicolas Liendro',
       player2: 'Uruguay',
-      stats1: { goals: 10, wins: 3 }, // Example stats
-      stats2: { goals: 8, wins: 2 },  // Example stats
     },
     cuartos: {
       round: 'Cuartos de Final',
       player1: 'Nicolas Liendro',
       player2: 'Brasil',
-      stats1: { goals: 12, wins: 4 },
-      stats2: { goals: 15, wins: 3 },
     },
     semifinal: {
       round: 'Semifinal',
       player1: 'Nicolas Liendro',
       player2: 'Argentina',
-      stats1: { goals: 16, wins: 5 },
-      stats2: { goals: 18, wins: 4 },
     },
     final: {
       round: 'Final',
       player1: 'Nicolas Liendro',
       player2: 'Alemania',
-      stats1: { goals: 20, wins: 6 },
-      stats2: { goals: 22, wins: 5 },
     },
   };
-
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   const handleAddMatch = (matchData: MatchData) => {
-    setMatchResult(matchData.result); // Guardamos el resultado del partido
+    setMatchResult(matchData.result);
 
-    // Lógica para avanzar entre fases
     if (matchData.result === 'win') {
       if (currentPhase === 'octavos') {
         setCurrentPhase('cuartos');
@@ -62,14 +59,23 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
       } else if (currentPhase === 'semifinal') {
         setCurrentPhase('final');
       } else if (currentPhase === 'final') {
-        setIsChampion(true); // Mostrar el popup de campeón si se gana la final
+        setIsChampion(true);
       }
     }
 
-    setShowPopup(false); // Cerramos el popup
+    setShowPopup(false);
   };
 
   const currentMatch = phases[currentPhase];
+
+  // Handle sharing via WhatsApp
+  const handleShare = () => {
+    const profileUrl = `https://myapp.com/profile/nicolas-liendro`; // Example profile URL
+    const message = `Hola! Mira mi perfil en la app. Envíame una solicitud de amistad para verlo: ${profileUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  
+    window.open(whatsappUrl, '_blank');
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
@@ -77,10 +83,15 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
 
       {/* Header section with Hamburger Menu and Add Friend Button */}
       <div className="flex justify-between w-full p-4 absolute top-0">
-        <Menu className="w-6 h-6 cursor-pointer" />
-        <UserPlus className="w-6 h-6 cursor-pointer" />
+      <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
+      <UserPlus className="w-6 h-6 cursor-pointer" />
       </div>
-
+      {/* Side menu */}
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={onNavigate} // Utilizamos la función de navegación pasada desde App.tsx
+      />
       {/* Profile Info inside bordered box */}
       <header className="flex flex-col items-center mt-20">
         <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent">
@@ -103,23 +114,19 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
         </h2>
       </div>
 
-      {/* Matchup: Nicolas Liendro vs Opponent with Player Stats */}
+      {/* Matchup: Nicolas Liendro vs Opponent */}
       <main className="flex flex-col items-center justify-center w-full flex-grow">
-        <div className="flex flex-col items-center space-y-6"> {/* Increased space between elements */}
+        <div className="flex flex-col items-center space-y-6">
           {/* Player 1 */}
-          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg"> {/* Increased size */}
+          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg">
             {currentMatch.player1}
-            <div className="text-sm mt-2">
-            </div>
           </div>
 
-          <span className="text-white text-2xl font-bold">VS</span> {/* Made larger */}
+          <span className="text-white text-2xl font-bold">VS</span>
 
           {/* Player 2 */}
-          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg"> {/* Increased size */}
+          <div className="bg-navy-700 p-6 rounded-lg w-52 text-center font-semibold text-lg">
             {currentMatch.player2}
-            <div className="text-sm mt-2">
-            </div>
           </div>
         </div>
 
@@ -144,7 +151,7 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
       {showPopup && (
         <AddMatchPopup
           onClose={() => setShowPopup(false)}
-          onSave={handleAddMatch} // Pasamos la función para guardar el resultado
+          onSave={handleAddMatch}
         />
       )}
 
@@ -158,7 +165,7 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
             >
               <X size={24} className="text-white" />
             </button>
-            <h2 className="text-2xl font-bold mb-4">Campeon del Mundo</h2>
+            <h2 className="text-2xl font-bold mb-4">Campeón del Mundo</h2>
             <img
               src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
               alt="Perfil de Nicolas Liendro"
@@ -169,7 +176,10 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
             <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4 mx-auto">
               <span className="text-xl font-bold">20</span>
             </div>
-            <button className="w-full bg-purple-600 text-white py-2 rounded-lg mt-4">
+            <button
+              className="w-full bg-purple-600 text-white py-2 rounded-lg mt-4"
+              onClick={handleShare} // Share button
+            >
               Compartir
             </button>
             <button
