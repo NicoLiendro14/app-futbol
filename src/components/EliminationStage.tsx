@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Plus, X } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
+import ProfileHeader from './ProfileHeader'; // Importa el componente de perfil
 
 interface EliminationStageProps {
   title: string;
@@ -69,6 +70,15 @@ const EliminationStage: React.FC<EliminationStageProps> = ({
         />
         <h1 className="text-xl font-bold">{title}</h1>
       </header>
+
+      {/* Agregamos el componente de perfil */}
+      <ProfileHeader
+        name="Nicolas Merentiel"
+        imageUrl="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+        pg={20}
+        cg={1}
+        gp={36}
+      />
 
       <main className="px-4 py-6">
         <div className="text-center">

@@ -1,17 +1,18 @@
-// src/components/GroupStage.tsx
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Plus } from 'lucide-react';
+import {Plus, Menu, UserPlus } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
+import SideMenu from './SideMenu'; // Importing SideMenu
+import InviteFriendPopup from './InviteFriendPopup'; // Importing InviteFriendPopup
 
 interface GroupStageProps {
   title: string;
   onBackClick: () => void;
-  onAdvanceToEliminationStage: () => void; // Nueva función para avanzar a eliminación
+  onAdvanceToEliminationStage: () => void;
 }
 
 interface TeamData {
   name: string;
-  results: ('win' | 'draw' | 'loss' | null)[];
+  results: ('win' | 'draw' | 'loss' | null)[]; // Results are now limited to 3 entries
 }
 
 const GroupStage: React.FC<GroupStageProps> = ({
@@ -21,22 +22,24 @@ const GroupStage: React.FC<GroupStageProps> = ({
 }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [teams, setTeams] = useState<TeamData[]>([
-    { name: 'Nicolas Liendro', results: [null, null, null, null] }, // Los resultados iniciales son null
-    { name: 'Uruguay', results: [null, null, null, null] },
-    { name: 'Colombia', results: [null, null, null, null] },
-    { name: 'Noruega', results: [null, null, null, null] },
+    { name: 'Nicolas Liendro', results: [null, null, null] }, // 3 matches
+    { name: 'Uruguay', results: [null, null, null] }, // 3 matches
+    { name: 'Colombia', results: [null, null, null] }, // 3 matches
+    { name: 'Noruega', results: [null, null, null] }, // 3 matches
   ]);
 
+  // State for the side menu and friend invitation
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
+
   useEffect(() => {
-    // Verificar si el equipo de Nicolas Liendro ha ganado todos los partidos
-    const userTeam = teams[0]; // Asumiendo que el primer equipo es Nicolas Liendro
+    const userTeam = teams[0];
     const allWins = userTeam.results.every((result) => result === 'win');
 
-    // Si el equipo ha ganado todos los partidos, avanzamos a la fase eliminatoria
     if (allWins && userTeam.results.every((result) => result !== null)) {
       onAdvanceToEliminationStage();
     }
-  }, [teams, onAdvanceToEliminationStage]); // El efecto se ejecuta cada vez que se actualiza `teams`
+  }, [teams, onAdvanceToEliminationStage]);
 
   const handleAddMatch = (matchData: MatchData) => {
     setTeams((prevTeams) => {
@@ -47,7 +50,6 @@ const GroupStage: React.FC<GroupStageProps> = ({
         userTeam.results[firstNullIndex] = matchData.result;
       }
 
-      // Actualizamos los resultados de los otros equipos de forma aleatoria
       for (let i = 1; i < newTeams.length; i++) {
         const team = newTeams[i];
         const randomIndex = team.results.indexOf(null);
@@ -67,44 +69,64 @@ const GroupStage: React.FC<GroupStageProps> = ({
     });
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen); // Toggle side menu
+  };
+
+  const handleInvite = (email: string) => {
+    const validEmails = ['amigo@example.com', 'amiga@example.com'];
+    return validEmails.includes(email);
+  };
+
   return (
-    <div className="min-h-screen bg-navy-900 text-white font-sans">
-      <header className="p-4 flex items-center">
-        <ChevronLeft
-          className="w-6 h-6 mr-2 cursor-pointer"
-          onClick={onBackClick}
-        />
-        <h1 className="text-xl font-bold">{title}</h1>
+    <div className="min-h-screen flex flex-col justify-start items-center bg-cover bg-center bg-fixed text-white font-sans"
+      style={{ backgroundImage: "url('/path-to-your-background-image.png')" }}>
+
+      {/* Header section with Hamburger Menu and Add Friend Button */}
+      <div className="flex justify-between w-full p-4 absolute top-0">
+        <Menu className="w-6 h-6 cursor-pointer" onClick={toggleMenu} />
+        <UserPlus className="w-6 h-6 cursor-pointer" onClick={() => setIsInvitePopupOpen(true)} />
+      </div>
+
+      {/* Profile Info inside bordered box */}
+      <header className="flex flex-col items-center mt-20"> {/* Adjusted margin to increase spacing */}
+        <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent"> {/* Adjusted padding */}
+          <img
+            src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
+            alt="Perfil"
+            className="w-14 h-14 rounded-full mr-4" // Slightly bigger image
+          />
+          <div className="flex flex-col items-start">
+            <h1 className="text-lg font-bold">Mundial de Futbol</h1>
+            <span className="text-sm text-gray-300">Nicolas Liendro</span>
+          </div>
+        </div>
       </header>
 
-      <main className="px-4 py-6">
-        <div className="bg-navy-800 rounded-lg p-4 mb-6">
-          <img
-            src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80"
-            alt="Perfil de Nicolas Liendro"
-            className="w-16 h-16 rounded-full mb-2 mx-auto"
-          />
-          <h2 className="text-center text-lg font-semibold mb-2">
-            Nicolas Liendro
-          </h2>
-        </div>
+      {/* Fase de Grupos Button */}
+      <div className="mt-8 mb-10"> {/* Increased margin to make more space */}
+        <h2 className="text-xl font-bold px-6 py-2 border border-cyan-400 rounded-lg bg-transparent text-center">
+          Fase de Grupos
+        </h2>
+      </div>
 
-        <div className="bg-navy-800 rounded-lg p-4">
-          <h2 className="text-xl font-bold mb-4">Fase de Grupos</h2>
-          <div className="space-y-4">
-            <div className="bg-navy-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold mb-2">Grupo A</h3>
+      {/* Main content - Group A with adjusted spacing and only 3 circles */}
+      <main className="flex flex-col items-center justify-center w-full flex-grow">
+        <div className="bg-navy-900 rounded-lg p-8 opacity-90 w-full max-w-md"> {/* Adjusted padding */}
+          <div className="space-y-8"> {/* Increased space between rows */}
+            <div className="bg-navy-800 rounded-lg p-6 opacity-90 space-y-6"> {/* Adjusted padding and spacing */}
+              <h3 className="text-lg font-semibold mb-4 text-center">Grupo A</h3>
               {teams.map((team, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center mb-2"
+                  className="flex justify-between items-center py-3 text-sm" /* Increased padding between rows */
                 >
-                  <span>{team.name}</span>
-                  <div className="flex space-x-2">
+                  <span className="font-semibold">{team.name}</span>
+                  <div className="flex space-x-4"> {/* Increased space between circles */}
                     {team.results.map((result, i) => (
                       <div
                         key={i}
-                        className={`w-6 h-6 rounded-full border-2 ${
+                        className={`w-8 h-8 rounded-full border-2 ${
                           result === 'win'
                             ? 'bg-green-500 border-green-500'
                             : result === 'draw'
@@ -123,6 +145,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
         </div>
       </main>
 
+      {/* Floating button */}
       <div className="fixed bottom-4 right-4">
         <button
           className="bg-purple-600 text-white p-4 rounded-full shadow-lg"
@@ -132,6 +155,22 @@ const GroupStage: React.FC<GroupStageProps> = ({
         </button>
       </div>
 
+      {/* Side menu */}
+      <SideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={(section: string) => console.log(section)} // Replace with actual navigation logic
+      />
+
+      {/* Invite Friend Popup */}
+      {isInvitePopupOpen && (
+        <InviteFriendPopup
+          onClose={() => setIsInvitePopupOpen(false)}
+          onInvite={handleInvite}
+        />
+      )}
+
+      {/* Add match popup */}
       {showPopup && (
         <AddMatchPopup
           onClose={() => setShowPopup(false)}
