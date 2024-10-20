@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {Plus, Menu, UserPlus } from 'lucide-react';
 import AddMatchPopup, { MatchData } from './AddMatchPopup';
-import SideMenu from './SideMenu'; // Importing SideMenu
-import InviteFriendPopup from './InviteFriendPopup'; // Importing InviteFriendPopup
+import SideMenu from './SideMenu';
+import InviteFriendPopup from './InviteFriendPopup';
 
 interface GroupStageProps {
   title: string;
@@ -12,7 +12,7 @@ interface GroupStageProps {
 
 interface TeamData {
   name: string;
-  results: ('win' | 'draw' | 'loss' | null)[]; // Results are now limited to 3 entries
+  results: ('win' | 'draw' | 'loss' | null)[];
 }
 
 const GroupStage: React.FC<GroupStageProps> = ({
@@ -21,25 +21,34 @@ const GroupStage: React.FC<GroupStageProps> = ({
   onAdvanceToEliminationStage,
 }) => {
   const [showPopup, setShowPopup] = useState(false);
+  const [showAdvancePopup, setShowAdvancePopup] = useState(false); // Popup for advancing to next phase
   const [teams, setTeams] = useState<TeamData[]>([
     { name: 'Nicolas Liendro', results: [null, null, null] }, // 3 matches
     { name: 'Uruguay', results: [null, null, null] }, // 3 matches
     { name: 'Colombia', results: [null, null, null] }, // 3 matches
     { name: 'Noruega', results: [null, null, null] }, // 3 matches
   ]);
+  const [hasAdvanced, setHasAdvanced] = useState<boolean | null>(null); // Track if user has advanced
 
-  // State for the side menu and friend invitation
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isInvitePopupOpen, setIsInvitePopupOpen] = useState(false);
 
   useEffect(() => {
     const userTeam = teams[0];
+    const allMatchesPlayed = userTeam.results.every((result) => result !== null);
     const allWins = userTeam.results.every((result) => result === 'win');
 
-    if (allWins && userTeam.results.every((result) => result !== null)) {
-      onAdvanceToEliminationStage();
+    // Check if all matches are played
+    if (allMatchesPlayed) {
+      // If user won all matches, set advancement status
+      if (allWins) {
+        setHasAdvanced(true); // Indicate that the user has advanced
+      } else {
+        setHasAdvanced(false); // Indicate that the user has NOT advanced
+      }
+      setShowAdvancePopup(true); // Show popup
     }
-  }, [teams, onAdvanceToEliminationStage]);
+  }, [teams]);
 
   const handleAddMatch = (matchData: MatchData) => {
     setTeams((prevTeams) => {
@@ -70,12 +79,19 @@ const GroupStage: React.FC<GroupStageProps> = ({
   };
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen); // Toggle side menu
+    setIsMenuOpen(!isMenuOpen);
   };
 
   const handleInvite = (email: string) => {
     const validEmails = ['amigo@example.com', 'amiga@example.com'];
     return validEmails.includes(email);
+  };
+
+  const closeAdvancePopup = () => {
+    setShowAdvancePopup(false);
+    if (hasAdvanced) {
+      onAdvanceToEliminationStage(); // Now navigate to the elimination stage after closing the popup
+    }
   };
 
   return (
@@ -89,12 +105,12 @@ const GroupStage: React.FC<GroupStageProps> = ({
       </div>
 
       {/* Profile Info inside bordered box */}
-      <header className="flex flex-col items-center mt-20"> {/* Adjusted margin to increase spacing */}
-        <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent"> {/* Adjusted padding */}
+      <header className="flex flex-col items-center mt-20">
+        <div className="flex items-center border border-cyan-400 px-6 py-4 rounded-lg bg-transparent">
           <img
             src="https://www.corrienteshoy.com/galeria/fotos/2023/11/10/o_cc92f570a6e2c1a0600717e07a1e36f4.jpg"
             alt="Perfil"
-            className="w-14 h-14 rounded-full mr-4" // Slightly bigger image
+            className="w-14 h-14 rounded-full mr-4"
           />
           <div className="flex flex-col items-start">
             <h1 className="text-lg font-bold">Mundial de Futbol</h1>
@@ -104,7 +120,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
       </header>
 
       {/* Fase de Grupos Button */}
-      <div className="mt-8 mb-10"> {/* Increased margin to make more space */}
+      <div className="mt-8 mb-10">
         <h2 className="text-xl font-bold px-6 py-2 border border-cyan-400 rounded-lg bg-transparent text-center">
           Fase de Grupos
         </h2>
@@ -112,29 +128,28 @@ const GroupStage: React.FC<GroupStageProps> = ({
 
       {/* Main content - Group A with adjusted spacing and only 3 circles */}
       <main className="flex flex-col items-center justify-center w-full flex-grow">
-        <div className="bg-navy-900 rounded-lg p-8 opacity-90 w-full max-w-md"> {/* Adjusted padding */}
-          <div className="space-y-8"> {/* Increased space between rows */}
-            <div className="bg-navy-800 rounded-lg p-6 opacity-90 space-y-6"> {/* Adjusted padding and spacing */}
+        <div className="bg-navy-900 rounded-lg p-8 opacity-90 w-full max-w-md">
+          <div className="space-y-8">
+            <div className="bg-navy-800 rounded-lg p-6 opacity-90 space-y-6">
               <h3 className="text-lg font-semibold mb-4 text-center">Grupo A</h3>
               {teams.map((team, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center py-3 text-sm" /* Increased padding between rows */
+                  className="flex justify-between items-center py-3 text-sm"
                 >
                   <span className="font-semibold">{team.name}</span>
-                  <div className="flex space-x-4"> {/* Increased space between circles */}
+                  <div className="flex space-x-4">
                     {team.results.map((result, i) => (
                       <div
                         key={i}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          result === 'win'
+                        className={`w-8 h-8 rounded-full border-2 ${result === 'win'
                             ? 'bg-green-500 border-green-500'
                             : result === 'draw'
-                            ? 'bg-yellow-500 border-yellow-500'
-                            : result === 'loss'
-                            ? 'bg-red-500 border-red-500'
-                            : 'border-cyan-400'
-                        }`}
+                              ? 'bg-yellow-500 border-yellow-500'
+                              : result === 'loss'
+                                ? 'bg-red-500 border-red-500'
+                                : 'border-cyan-400'
+                          }`}
                       />
                     ))}
                   </div>
@@ -159,7 +174,7 @@ const GroupStage: React.FC<GroupStageProps> = ({
       <SideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={(section: string) => console.log(section)} // Replace with actual navigation logic
+        onNavigate={(section: string) => console.log(section)}
       />
 
       {/* Invite Friend Popup */}
@@ -177,6 +192,33 @@ const GroupStage: React.FC<GroupStageProps> = ({
           onSave={handleAddMatch}
         />
       )}
+
+      {/* Advance to Elimination Stage Popup */}
+      {/* Advance to Elimination Stage Popup */}
+      {showAdvancePopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-navy-800 rounded-lg p-6 text-center text-white max-w-md w-full mx-4"> {/* Added padding, color, and layout */}
+            {hasAdvanced ? (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">¡Felicitaciones!</h2>
+                <p>Has avanzado a la fase eliminatoria.</p>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-2xl font-bold mb-4">¡Lo sentimos!</h2>
+                <p>No has avanzado a la siguiente fase.</p>
+              </div>
+            )}
+            <button
+              className="mt-6 bg-purple-600 text-white py-2 px-4 rounded-lg"
+              onClick={closeAdvancePopup}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
